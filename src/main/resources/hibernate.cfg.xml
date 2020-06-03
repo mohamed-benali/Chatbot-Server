@@ -2,18 +2,15 @@
 <!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 
 <hibernate-configuration>
-
     <session-factory>
         <!-- JDBC Database connection settings -->
         <property name="connection.driver_class">org.postgresql.Driver</property>
-        <property name="connection.url">jdbc:postgresql://ec2-54-247-122-209.eu-west-1.compute.amazonaws.com:5432/dc5tbr80vsngup?sslmode=require</property>
-        <property name="connection.username">bysbwgjlsywxug</property>
-        <property name="connection.password">7e9847af233ac16918e67a7879d62eb09fc9f36ccf45ae588051c44f8e530cb1</property>
+        <property name="connection.url">jdbc:postgresql://ec2-3-222-30-53.compute-1.amazonaws.com:5432/dcnugnpsjh8e6r?sslmode=require</property>
+        <property name="connection.username">kqnzwjxrjzjgbv</property>
+        <property name="connection.password">04a81eb7e1172035cf9a934db3af3ea74dace45ec6ffa5078c7fd91ecf262db5</property>
         <property name="dialect">org.hibernate.dialect.PostgreSQL10Dialect</property>
         <property name="hibernate.show_sql">true</property>
         <property name="hibernate.default_schema">public</property>
-        <mapping class="com.example.sardapp.entities.User" />
-        <mapping class="com.example.sardapp.entities.Acte" />
-        <mapping class="com.example.sardapp.entities.Assistent" />
+        <mapping class="com.example.sardapp.entities.Intent" />
     </session-factory>
 </hibernate-configuration>

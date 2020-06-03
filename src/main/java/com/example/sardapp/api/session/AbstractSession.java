@@ -1,15 +1,14 @@
 package com.example.sardapp.api.session;
 
-import com.example.sardapp.entities.User;
+import com.example.sardapp.entities.Intent;
 import com.example.sardapp.hibernate.Factory;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.springframework.context.annotation.Bean;
 
 public class AbstractSession
 {
     private Session session;
-    private static  SessionFactory sessionFactory = Factory.getSessionFactory(User.class);
+    private static  SessionFactory sessionFactory = Factory.getSessionFactory(Intent.class);
 
     private void newSession()
     {
