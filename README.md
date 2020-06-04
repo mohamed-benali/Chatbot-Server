@@ -1,7 +1,4 @@
-# SardApp
+# Server
 
 ## Team members
 - Mohamed Benali
-- Agustí Conesa
-- Ariadna de Arriba
-- Enric Segura
