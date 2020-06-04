@@ -44,14 +44,17 @@ public class IntentServiceImpl implements IntentService
         String textResponse = queryResult.getFulfillmentText();
 
         if(intent != null) { // Some intent has been matched
+            List<GoogleCloudDialogflowV2Context> outputContexts = intent.getOutputContexts(); // Output contexts per defecte
             if(intent.getIsFallback()) {
                 //List<GoogleCloudDialogflowV2Context> currentContexts = queryResult.getOutputContexts();
                 //response.setOutputContexts(currentContexts);
                 response.setFulfillmentText("Sorry, i did not understand");
             }
+            else if(outputContexts != null && outputContexts.isEmpty()) { // A query intent with no in/out contexts
+                response.setFulfillmentText(textResponse);
+            }
             else {
                 String name = intent.getDisplayName();
-                List<GoogleCloudDialogflowV2Context> outputContexts = intent.getOutputContexts(); // Output contexts per defecte
 
                 //Intent myIntent = intentDAO.findById(name);
 
@@ -62,7 +65,6 @@ public class IntentServiceImpl implements IntentService
                 //List<String> outputContextsList = parseOutputContext(outputContext);
                 //List<GoogleCloudDialogflowV2Context> currentOutputContext = queryResult.getOutputContexts();
                 //List<GoogleCloudDialogflowV2Context> outputContexts= createOutputContexts(outputContextsList, currentOutputContext, session);
-
                 response.setOutputContexts(outputContexts);
             }
         }
