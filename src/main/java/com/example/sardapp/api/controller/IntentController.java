@@ -123,14 +123,22 @@ public class IntentController
     public ResponseEntity<?> dialogflow(@RequestBody String requestStr, HttpServletRequest servletRequest) throws InvalidKeySpecException, NoSuchAlgorithmException
     {
         try {
+            System.out.println("Break 1");
             GoogleCloudDialogflowV2WebhookResponse response = new GoogleCloudDialogflowV2WebhookResponse();
+            System.out.println("Break 2");
+
             GoogleCloudDialogflowV2WebhookRequest request = jacksonFactory.createJsonParser(requestStr).parse(GoogleCloudDialogflowV2WebhookRequest.class);
+            System.out.println("Break 3");
 
             intentService.processMessage(request, response);
+            System.out.println("Break 4");
 
             return new ResponseEntity<GoogleCloudDialogflowV2WebhookResponse>(response,HttpStatus.OK);
         }
         catch (Exception ex) {
+            System.out.println("Break Error");
+
+            System.out.println(ex.getMessage());
             return new ResponseEntity<Object>(ex.getMessage(),HttpStatus.BAD_REQUEST);
         }
     }
