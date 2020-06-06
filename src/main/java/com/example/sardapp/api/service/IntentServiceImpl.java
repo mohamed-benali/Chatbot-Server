@@ -115,6 +115,7 @@ public class IntentServiceImpl implements IntentService
             String name = context.getName();
             String[] nameArray = name.split("/");
             String displayName = nameArray[nameArray.length -1];
+            displayName = displayName.toLowerCase();
 
             int lifespan = context.getLifespanCount();
 
