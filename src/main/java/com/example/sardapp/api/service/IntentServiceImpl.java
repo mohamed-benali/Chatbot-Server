@@ -66,16 +66,16 @@ public class IntentServiceImpl implements IntentService
             com.google.cloud.dialogflow.v2.Intent completeIntent = intentManagment.getIntent(intentName);
             List<Context> outputContextsCompleteIntent = completeIntent.getOutputContextsList(); // Output contexts per defecte
 
-            List<GoogleCloudDialogflowV2Context> outputContexts = this.parseOutputContextsToCloudDialogflow(outputContextsCompleteIntent, session);
+            List<GoogleCloudDialogflowV2Context> intentOutputContextsList = this.parseOutputContextsToCloudDialogflow(outputContextsCompleteIntent, session);
+            List<GoogleCloudDialogflowV2Context> currentOutputContext = queryResult.getOutputContexts();
+            List<GoogleCloudDialogflowV2Context> outputContexts = createOutputContexts(intentOutputContextsList, currentOutputContext, session);
+
 
             boolean isFallback = intentDisplayNamed.equals("DEFAULT_FALLBACK_INTENT"); // TODO: Improve this
             System.out.println("Break 3.5.3");
 
             if(isFallback) {
                 System.out.println("Break 3.5.3.1");
-
-                //List<GoogleCloudDialogflowV2Context> currentContexts = queryResult.getOutputContexts();
-                //response.setOutputContexts(currentContexts);
                 response.setFulfillmentText("Sorry, i did not understand");
             }
             else if(outputContextsCompleteIntent != null && outputContextsCompleteIntent.isEmpty()) { // A query intent with no in/out contexts
@@ -84,10 +84,7 @@ public class IntentServiceImpl implements IntentService
             }
             else {
                 System.out.println("Break 3.5.3.3");
-
                 System.out.println("Break 3.5.3.4");
-
-
 
                 //Intent myIntent = intentDAO.findById(intentDisplayNamed);
 
@@ -95,10 +92,6 @@ public class IntentServiceImpl implements IntentService
                 response.setFulfillmentText(textResponse);
                 System.out.println("Break 3.5.3.5");
 
-                //String outputContext = myIntent.getOutcontext();
-                //List<String> outputContextsList = parseOutputContext(outputContext);
-                //List<GoogleCloudDialogflowV2Context> currentOutputContext = queryResult.getOutputContexts();
-                //List<GoogleCloudDialogflowV2Context> outputContexts= createOutputContexts(outputContextsList, currentOutputContext, session);
                 response.setOutputContexts(outputContexts);
                 System.out.println("Break 3.5.3.6");
 
@@ -134,21 +127,17 @@ public class IntentServiceImpl implements IntentService
         return outputContexts;
     }
 
-    private List<GoogleCloudDialogflowV2Context> createOutputContexts(List<String> outputContextsList,
-                                                                      List<GoogleCloudDialogflowV2Context> currentOutputContext,
+    private List<GoogleCloudDialogflowV2Context> createOutputContexts(List<GoogleCloudDialogflowV2Context> outputContextsList,
+                                                                      List<GoogleCloudDialogflowV2Context> currentOutputContextList,
                                                                       String session)
     {
-        List<GoogleCloudDialogflowV2Context> googleOutputContexts = new ArrayList<>();
-
-        for (String outputContext : outputContextsList) {
-            GoogleCloudDialogflowV2Context googleCloudDialogflowV2Context = new GoogleCloudDialogflowV2Context();
-            googleCloudDialogflowV2Context.setName(session + "/contexts/" + outputContext);
-            googleCloudDialogflowV2Context.setLifespanCount(100);
-
-            googleOutputContexts.add(googleCloudDialogflowV2Context);
+        for (GoogleCloudDialogflowV2Context currentOutputContext : currentOutputContextList) {
+            if (!outputContextsList.contains(currentOutputContext)) {
+                currentOutputContext.setLifespanCount(0);
+                outputContextsList.add(currentOutputContext);
+            }
         }
-
-        return googleOutputContexts;
+        return outputContextsList;
     }
 
     private List<String> parseOutputContext(String outputContext) {
