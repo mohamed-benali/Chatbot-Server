@@ -5,9 +5,9 @@
     <session-factory>
         <!-- JDBC Database connection settings -->
         <property name="connection.driver_class">org.postgresql.Driver</property>
-        <property name="connection.url">jdbc:postgresql://ec2-3-222-30-53.compute-1.amazonaws.com:5432/dcnugnpsjh8e6r?sslmode=require</property>
-        <property name="connection.username">kqnzwjxrjzjgbv</property>
-        <property name="connection.password">04a81eb7e1172035cf9a934db3af3ea74dace45ec6ffa5078c7fd91ecf262db5</property>
+        <property name="connection.url">jdbc:postgresql://ec2-35-169-254-43.compute-1.amazonaws.com:5432/d1t0j97n06qs39?sslmode=require</property>
+        <property name="connection.username">bpvpulttvxicpz</property>
+        <property name="connection.password">bcb30f597056dd790cecbceda8e22f8ce16c2fbb00aa85979b0be570ca491da1</property>
         <property name="dialect">org.hibernate.dialect.PostgreSQL10Dialect</property>
         <property name="hibernate.show_sql">true</property>
         <property name="hibernate.default_schema">public</property>

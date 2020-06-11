@@ -47,11 +47,11 @@ public class IntentController
     }
 
     /* Get one user specified by an email*/
-    @GetMapping(value = "/{nom}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{numero}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get one intent", notes = "Get one intent information by its id")
-    public ResponseEntity getUser(@PathVariable String nom)
+    public ResponseEntity getUser(@PathVariable int numero)
     {
-        Intent intent = intentService.findById(nom);
+        Intent intent = intentService.findById(numero);
 
         if(intent == null)
         {
@@ -74,7 +74,7 @@ public class IntentController
     @ApiOperation(value = "Create new intent", notes = "Create new intent providing its information")
     public ResponseEntity addIntent(@RequestBody Intent intent) throws InvalidKeySpecException, NoSuchAlgorithmException
     {
-        Intent intentFound = intentService.findById(intent.getNom());
+        Intent intentFound = intentService.findById(intent.getNumero());
 
         if(intentFound != null)
         {
@@ -95,7 +95,7 @@ public class IntentController
     public ResponseEntity addIntent(@RequestBody List<Intent> intents) throws InvalidKeySpecException, NoSuchAlgorithmException
     {
         for(Intent intent : intents) {
-            Intent intentFound = intentService.findById(intent.getNom());
+            Intent intentFound = intentService.findById(intent.getNumero());
             if(intentFound != null)
             {
                 return new ResponseEntity("Intent already exists with this id", HttpStatus.CONFLICT);
@@ -106,11 +106,19 @@ public class IntentController
         return new ResponseEntity("Intent created succesfully", HttpStatus.CREATED);
     }
 
-    @DeleteMapping(value = "/SetUpDB", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/SetUpEmptyDB", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Set Up Empty DB", notes = "Sets Up a DB with the apropiate empty tables")
     public ResponseEntity setUpEmptyDB()
     {
         String responseBody = intentService.setUpEmptyDB();
+
+        return new ResponseEntity(responseBody, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping(value = "/SetUpDB", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Set Up DB", notes = "Sets Up a DB with the appropriate tables and the stack with the begin intent")
+    public ResponseEntity setUpDB() throws Exception {
+        String responseBody = intentService.setUpDB();
 
         return new ResponseEntity(responseBody, HttpStatus.CREATED);
     }

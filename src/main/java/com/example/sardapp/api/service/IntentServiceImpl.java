@@ -23,8 +23,8 @@ public class IntentServiceImpl implements IntentService
         intentDAO.save(intent);
     }
     @Override
-    public Intent findById(String name) {
-        return intentDAO.findById(name);
+    public Intent findById(int numero) {
+        return intentDAO.findById(numero);
     }
 
     @Override
@@ -68,11 +68,14 @@ public class IntentServiceImpl implements IntentService
 
             List<GoogleCloudDialogflowV2Context> intentOutputContextsList = this.parseOutputContextsToCloudDialogflow(outputContextsCompleteIntent, session);
             List<GoogleCloudDialogflowV2Context> currentOutputContext = queryResult.getOutputContexts();
-            List<GoogleCloudDialogflowV2Context> outputContexts = createOutputContexts(intentOutputContextsList, currentOutputContext, session);
+            List<GoogleCloudDialogflowV2Context> outputContexts = createOutputContexts(intentOutputContextsList, currentOutputContext);
 
 
             boolean isFallback = intentDisplayNamed.equals("DEFAULT_FALLBACK_INTENT"); // TODO: Improve this
             System.out.println("Break 3.5.3");
+
+            boolean isResetIntent = intentDisplayNamed.equals("begin_context"); // TODO: Improve this
+
 
             if(isFallback) {
                 System.out.println("Break 3.5.3.1");
@@ -82,29 +85,54 @@ public class IntentServiceImpl implements IntentService
                 System.out.println("Break 3.5.3.2");
                 response.setFulfillmentText(textResponse);
             }
+            else if(isResetIntent) {
+                this.intentDAO.setUpDB(outputContexts, textResponse);
+            }
             else {
                 System.out.println("Break 3.5.3.3");
+                boolean isBack = intentDisplayNamed.equals("BACK_INTENT"); // TODO: Improve this
                 System.out.println("Break 3.5.3.4");
 
-                //Intent myIntent = intentDAO.findById(intentDisplayNamed);
+                if(isBack) {
+                    // TODO: Change Intent class: Add number(id) that is the position.
+                    Intent stackElement = intentDAO.topStack();
+                    System.out.println("Break 3.6.1");
+                    if (stackElement != null) {
+                        intentDAO.popStackContext(stackElement);
+                        stackElement = intentDAO.topStack();
+                        if(stackElement != null) {
+                            textResponse = stackElement.getResponse();
+                            outputContexts = stackElement.parseOutContexts();
+                            response.setFulfillmentText(textResponse);
+                            response.setOutputContexts(outputContexts);
+                            System.out.println("Break 3.6.1.2");
+                        }
+                        else {
+                            response.setFulfillmentText("You cannot go back.");
+                            System.out.println("Break 3.6.1.3");
+                        }
+                    }
+                    else {
+                        response.setFulfillmentText("You cannot go back.");
+                        System.out.println("Break 3.6.1.4");
+                    }
+                } else {
+                    intentDAO.pushStackContext(textResponse, outputContexts);
 
-                //String textResponse = myIntent.getResponse();
-                response.setFulfillmentText(textResponse);
-                System.out.println("Break 3.5.3.5");
-
-                response.setOutputContexts(outputContexts);
-                System.out.println("Break 3.5.3.6");
-
+                    response.setFulfillmentText(textResponse);
+                    response.setOutputContexts(outputContexts);
+                    System.out.println("Break 3.6.2");
+                }
             }
         }
         else {
-            System.out.println("Break 3.6");
+            System.out.println("Break 3.7");
 
             // Should never enter here, because the fallback intent should be triggered
             response.setFulfillmentText("Something went wrong (no intent has been matched, not even the fallback intent");
 
         }
-        System.out.println("Break 3.7");
+        System.out.println("Break 3.8");
     }
 
     @Override
@@ -128,9 +156,29 @@ public class IntentServiceImpl implements IntentService
         return outputContexts;
     }
 
+    @Override // TODO: Si Dialogflow fa match intent per el begin context, aquesta funcio no seria necesaria
+    public String setUpDB() throws Exception {/*
+    TODO: Falta acabar: Potser guarda el displayName, i construir el nom del contexte segons la sessio especifica
+        Posar un if, segons si el intent.numero = 1?
+
+
+        IntentManagment intentManagment = new IntentManagment();
+        com.google.cloud.dialogflow.v2.Intent completeIntent = intentManagment.getIntent("begin_context");
+
+        String textResponse = completeIntent.getMessages(0).getText().getText(0);
+        List<Context> outputContextsCompleteIntent = completeIntent.getOutputContextsList(); // Output contexts per defecte
+
+        List<GoogleCloudDialogflowV2Context> intentOutputContextsList = this.parseOutputContextsToCloudDialogflow(outputContextsCompleteIntent);
+        List<GoogleCloudDialogflowV2Context> currentOutputContext = queryResult.getOutputContexts();
+        List<GoogleCloudDialogflowV2Context> outputContexts = createOutputContexts(intentOutputContextsList, currentOutputContext);
+
+
+        return this.intentDAO.setUpDB();*/
+        return null;
+    }
+
     private List<GoogleCloudDialogflowV2Context> createOutputContexts(List<GoogleCloudDialogflowV2Context> outputContextsList,
-                                                                      List<GoogleCloudDialogflowV2Context> currentOutputContextList,
-                                                                      String session)
+                                                                      List<GoogleCloudDialogflowV2Context> currentOutputContextList)
     {
         for (GoogleCloudDialogflowV2Context currentOutputContext : currentOutputContextList) {
             if (!outputContextsList.contains(currentOutputContext)) {

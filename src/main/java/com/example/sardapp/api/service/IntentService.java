@@ -6,6 +6,7 @@ import com.google.api.services.dialogflow.v2.model.GoogleCloudDialogflowV2Webhoo
 import com.google.api.services.dialogflow.v2.model.GoogleCloudDialogflowV2WebhookResponse;
 import com.google.cloud.dialogflow.v2.Context;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -15,11 +16,13 @@ public interface IntentService
 
     void processMessage(GoogleCloudDialogflowV2WebhookRequest request, GoogleCloudDialogflowV2WebhookResponse response) throws Exception;
 
-    Intent findById(String name);
+    Intent findById(int numero);
 
     String setUpEmptyDB();
 
     List<Intent> findAll();
 
     List<GoogleCloudDialogflowV2Context> parseOutputContextsToCloudDialogflow(List<Context> outputContextsCompleteIntent, String session);
+
+    String setUpDB() throws Exception;
 }
