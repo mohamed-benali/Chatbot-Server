@@ -20,4 +20,12 @@ public class AbstractSession
         newSession();
         return session;
     }
+
+
+    public void close() {
+        if(session!=null) {
+            session.close();
+            session=null;
+        }
+    }
 }

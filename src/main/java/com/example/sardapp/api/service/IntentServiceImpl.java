@@ -38,6 +38,16 @@ public class IntentServiceImpl implements IntentService
     }
 
 
+
+    public void print(List<GoogleCloudDialogflowV2Context> contexts, String s) {
+        System.out.println();
+        System.out.println(s);
+        for(GoogleCloudDialogflowV2Context googleCloudDialogflowV2Context : contexts) {
+            System.out.print(googleCloudDialogflowV2Context.getName() + " ");
+            System.out.println();
+        }
+    }
+
     @Override
     public void processMessage(GoogleCloudDialogflowV2WebhookRequest request, GoogleCloudDialogflowV2WebhookResponse response) throws Exception {
         System.out.println("Break 3.1");
@@ -49,6 +59,8 @@ public class IntentServiceImpl implements IntentService
         System.out.println("Break 3.3");
 
         String session = request.getSession();
+        System.out.println("session = " + session);
+
         System.out.println("Break 3.4");
 
         String textResponse = queryResult.getFulfillmentText();
@@ -68,7 +80,12 @@ public class IntentServiceImpl implements IntentService
 
             List<GoogleCloudDialogflowV2Context> intentOutputContextsList = this.parseOutputContextsToCloudDialogflow(outputContextsCompleteIntent, session);
             List<GoogleCloudDialogflowV2Context> currentOutputContext = queryResult.getOutputContexts();
+
+            print(intentOutputContextsList, "intentOutputContextsList");
+            print(currentOutputContext, "currentOutputContext");
+
             List<GoogleCloudDialogflowV2Context> outputContexts = createOutputContexts(intentOutputContextsList, currentOutputContext);
+            print(outputContexts, "outputContexts");
 
 
             boolean isFallback = intentDisplayNamed.equals("DEFAULT_FALLBACK_INTENT"); // TODO: Improve this
@@ -177,6 +194,12 @@ public class IntentServiceImpl implements IntentService
         return null;
     }
 
+    /**
+     * Nomes creen els contextes que haurien de estar actius, la resta es crean amb lifespan 0(per eliminarlos).
+     * @param outputContextsList Contextes que haurian de estar actius
+     * @param currentOutputContextList Contextes actuals
+     * @return
+     */
     private List<GoogleCloudDialogflowV2Context> createOutputContexts(List<GoogleCloudDialogflowV2Context> outputContextsList,
                                                                       List<GoogleCloudDialogflowV2Context> currentOutputContextList)
     {
