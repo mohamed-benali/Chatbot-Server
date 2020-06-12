@@ -15,12 +15,12 @@ public interface IntentDAO
 
     List<Intent> findAll();
 
-    void pushStackContext(String textResponse, List<GoogleCloudDialogflowV2Context> outputContexts);
+    void pushStackContext(String textResponse, String intentName);
 
     Intent topStack();
 
     void popStackContext(Intent stackElement);
 
 
-    void setUpDB(List<GoogleCloudDialogflowV2Context> outputContexts, String textResponse);
+    void setUpDB(String intentName, String textResponse);
 }

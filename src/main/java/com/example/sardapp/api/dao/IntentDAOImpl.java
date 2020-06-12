@@ -4,9 +4,13 @@ import com.example.sardapp.api.session.AbstractSession;
 import com.example.sardapp.entities.Intent;
 import com.google.api.services.dialogflow.v2.model.GoogleCloudDialogflowV2Context;
 import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Property;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.List;
 
 @Repository
@@ -36,12 +40,11 @@ public class IntentDAOImpl extends AbstractSession implements IntentDAO
     }
 
     @Override
-    public void pushStackContext(String textResponse, List<GoogleCloudDialogflowV2Context> outputContexts) {
+    public void pushStackContext(String textResponse, String intentName) {
         Intent intent = new Intent();
         intent.setResponse(textResponse);
 
-        String outContexts = this.parseOutputContexts(outputContexts);
-        intent.setOutcontext(outContexts);
+        intent.setIntent(intentName);
 
         Intent topIntent = this.topStack();
         int numero = 1;
@@ -53,12 +56,22 @@ public class IntentDAOImpl extends AbstractSession implements IntentDAO
 
     @Override
     public Intent topStack() {
-        List<Intent> intent = getSession().createSQLQuery("SELECT i " +
+        List<Intent> intents = getSession().createQuery("SELECT i " +
                                         "FROM Intent i " +
-                                        "WHERE i.numero = (SELECT MAX(i2.numero) FROM Intent i2)").list();
+                                        "where i.numero = (SELECT MAX(i2.numero) FROM Intent i2)").list();
+/*
+        DetachedCriteria maxId = DetachedCriteria.forClass(Intent.class)
+                .setProjection( Projections.max("id") );
+        getSession().createCriteria(Intent.class)
+                .add( Property.forName("id").eq(maxId) )
+                .list();
 
-        if(intent==null || intent.size() == 0) return null;
-        else return intent.get(0);
+        CriteriaBuilder cb = getSession().getCriteriaBuilder();
+        cb.max*/
+
+
+        if(intents==null || intents.size() == 0) return null;
+        else return intents.get(0);
     }
 
     @Override
@@ -94,18 +107,18 @@ public class IntentDAOImpl extends AbstractSession implements IntentDAO
 
 
     @Override
-    public void setUpDB(List<GoogleCloudDialogflowV2Context> outputContexts, String textResponse) {
+    public void setUpDB(String intentName, String textResponse) {
         try {
             getSession().beginTransaction();
             getSession().createSQLQuery("CREATE TABLE IF NOT EXISTS intents (numero integer, " +
                     "response varchar(8191), " +
-                    "outcontext varchar(8191))").executeUpdate();
+                    "intent varchar(8191))").executeUpdate();
             getSession().createSQLQuery("DELETE FROM intents").executeUpdate();
             getSession().clear();
 
             Intent intent = new Intent();
             intent.setNumero(1);
-            intent.setOutcontext(parseOutputContexts(outputContexts));
+            intent.setIntent(intentName);
             intent.setResponse(textResponse);
 
             getSession().saveOrUpdate(intent);
@@ -126,7 +139,7 @@ public class IntentDAOImpl extends AbstractSession implements IntentDAO
             getSession().beginTransaction();
             getSession().createSQLQuery("CREATE TABLE IF NOT EXISTS intents (numero integer, " +
                     "response varchar(8191), " +
-                    "outcontext varchar(8191))").executeUpdate();
+                    "intent varchar(8191))").executeUpdate();
             getSession().createSQLQuery("DELETE FROM intents").executeUpdate();
 
             getSession().getTransaction().commit();

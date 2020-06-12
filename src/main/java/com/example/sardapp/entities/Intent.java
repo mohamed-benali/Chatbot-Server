@@ -16,8 +16,8 @@ import java.util.List;
 public class Intent
 {
     @Id @Column(name = "numero")            private int numero;
-    @Column(name = "response")          private String response;
-    @Column(name = "outcontext")        private String outcontext;
+    @Column(name = "response")              private String response;
+    @Column(name = "intent")                private String intent;
 
     public Intent() {}
 
@@ -25,32 +25,12 @@ public class Intent
 
     public void setResponse(String response) { this.response = response; }
 
-    public String getOutcontext() { return outcontext; }
+    public String getIntent() { return intent; }
 
-    public void setOutcontext(String outcontext) { this.outcontext = outcontext; }
+    public void setIntent(String outcontext) { this.intent = outcontext; }
 
 
     public int getNumero() { return numero; }
     public void setNumero(int numero) { this.numero = numero; }
 
-    public List<GoogleCloudDialogflowV2Context> parseOutContexts() {
-        List<String> outContextsList = parseOutputContext(this.getOutcontext());
-
-        List<GoogleCloudDialogflowV2Context> googleCloudDialogflowV2ContextsRESULT = new ArrayList<>();
-
-        for(String outContext : outContextsList) {
-            GoogleCloudDialogflowV2Context googleCloudDialogflowV2Context = new GoogleCloudDialogflowV2Context();
-            googleCloudDialogflowV2Context.setName(outContext);
-            googleCloudDialogflowV2Context.setLifespanCount(100);
-
-            googleCloudDialogflowV2ContextsRESULT.add(googleCloudDialogflowV2Context);
-        }
-        return googleCloudDialogflowV2ContextsRESULT;
-    }
-
-    private List<String> parseOutputContext(String outputContext) {
-        String separator = ";";
-        String[] array = outputContext.split(separator);
-        return new ArrayList<>(Arrays.asList(array));
-    }
 }

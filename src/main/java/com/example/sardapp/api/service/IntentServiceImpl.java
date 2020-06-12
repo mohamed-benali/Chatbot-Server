@@ -68,15 +68,15 @@ public class IntentServiceImpl implements IntentService
 
         if(intent != null) { // Some intent has been matched
             System.out.println("Break 3.5.1");
-
-            System.out.println("Break 3.5.2");
-
             String intentDisplayNamed = intent.getDisplayName();
             String intentName = intent.getName();
 
             IntentManagment intentManagment = new IntentManagment();
             com.google.cloud.dialogflow.v2.Intent completeIntent = intentManagment.getIntent(intentName);
             List<Context> outputContextsCompleteIntent = completeIntent.getOutputContextsList(); // Output contexts per defecte
+
+            System.out.println("Break 3.5.2");
+
 
             List<GoogleCloudDialogflowV2Context> intentOutputContextsList = this.parseOutputContextsToCloudDialogflow(outputContextsCompleteIntent, session);
             List<GoogleCloudDialogflowV2Context> currentOutputContext = queryResult.getOutputContexts();
@@ -93,17 +93,20 @@ public class IntentServiceImpl implements IntentService
 
             boolean isResetIntent = intentDisplayNamed.equals("begin_context"); // TODO: Improve this
 
-
             if(isFallback) {
                 System.out.println("Break 3.5.3.1");
                 response.setFulfillmentText("Sorry, i did not understand");
             }
-            else if(outputContextsCompleteIntent != null && outputContextsCompleteIntent.isEmpty()) { // A query intent with no in/out contexts
+            else if(outputContextsCompleteIntent != null &&
+                    outputContextsCompleteIntent.isEmpty() &&
+                    !intentDisplayNamed.equals("BACK_INTENT")) { // A query intent with no in/out contexts
                 System.out.println("Break 3.5.3.2");
                 response.setFulfillmentText(textResponse);
             }
             else if(isResetIntent) {
-                this.intentDAO.setUpDB(outputContexts, textResponse);
+                this.intentDAO.setUpDB(intentName, textResponse);
+                response.setFulfillmentText(textResponse);
+                response.setOutputContexts(outputContexts);
             }
             else {
                 System.out.println("Break 3.5.3.3");
@@ -118,10 +121,23 @@ public class IntentServiceImpl implements IntentService
                         intentDAO.popStackContext(stackElement);
                         stackElement = intentDAO.topStack();
                         if(stackElement != null) {
+                            com.google.cloud.dialogflow.v2.Intent completeBackIntent = intentManagment.getIntent(stackElement.getIntent());
+                            List<Context> outputContextsCompleteBackIntent = completeBackIntent.getOutputContextsList(); // Output contexts per defecte
+                            List<GoogleCloudDialogflowV2Context> backIntentOutputContextsList = this.parseOutputContextsToCloudDialogflow(outputContextsCompleteBackIntent, session);
+
+                            print(backIntentOutputContextsList, "backIntentOutputContextsList");
+                            print(currentOutputContext, "currentOutputContext");
+
+                            List<GoogleCloudDialogflowV2Context> outputBackContexts = createOutputContexts(backIntentOutputContextsList, currentOutputContext);
+                            print(outputBackContexts, "outputBackContexts");
+
+                            // TODO: BETTER PERFORMANCE:
+                            //  Push, on the stack, the output contexts of each intent. Then, its not needed to
+                            //  use the API to call the intent
+
                             textResponse = stackElement.getResponse();
-                            outputContexts = stackElement.parseOutContexts();
                             response.setFulfillmentText(textResponse);
-                            response.setOutputContexts(outputContexts);
+                            response.setOutputContexts(outputBackContexts);
                             System.out.println("Break 3.6.1.2");
                         }
                         else {
@@ -134,7 +150,7 @@ public class IntentServiceImpl implements IntentService
                         System.out.println("Break 3.6.1.4");
                     }
                 } else {
-                    intentDAO.pushStackContext(textResponse, outputContexts);
+                    intentDAO.pushStackContext(textResponse, intentName);
 
                     response.setFulfillmentText(textResponse);
                     response.setOutputContexts(outputContexts);
