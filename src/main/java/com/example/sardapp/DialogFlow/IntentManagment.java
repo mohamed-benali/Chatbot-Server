@@ -41,4 +41,8 @@ public class IntentManagment {
     }
 
 
+    public void shutdown() {
+        intentsClient.shutdown();
+        while (!intentsClient.isShutdown()) {};
+    }
 }

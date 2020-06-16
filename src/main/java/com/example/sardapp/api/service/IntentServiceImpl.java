@@ -157,6 +157,10 @@ public class IntentServiceImpl implements IntentService
                     System.out.println("Break 3.6.2");
                 }
             }
+
+            intentManagment.shutdown();
+
+
         }
         else {
             System.out.println("Break 3.7");
